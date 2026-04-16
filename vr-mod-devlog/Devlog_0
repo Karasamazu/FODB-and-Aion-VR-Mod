@@ -1,0 +1,235 @@
+Devlog 0 – The Birth of Nova (Final, Corrected, Complete)
+How a modernized Aion‑Server became the host of a living AI subsystem.
+
+Nachdem der Aion‑EMU‑Server erfolgreich modernisiert war (Java‑11‑Migration, Refactoring, Namespace‑Reparatur, GameServer‑Neuordnung), entstand endlich Raum für etwas Neues:
+
+    Nova — ein AI‑Subsystem direkt im Aion‑Server.
+
+Nova war kein altes Projekt.
+Nova war neu, frisch, experimentell — und sollte Aion um eine völlig neue Dimension erweitern:
+
+    Chatbot‑Integration
+
+    Chatlog‑Listener
+
+    NPC‑Steuerung
+
+    HTTP‑Server im GameServer
+
+    Follow/Stop‑Mechanik
+
+    später VR‑Mod‑Hooks
+
+Das war der Moment, an dem Aion plötzlich lebendig wurde.
+⭐ 1. Die Idee: AI inside Aion
+
+Die Vision war klar:
+
+    Der Spieler schreibt im Chat: /ai something
+
+    Ein Listener erkennt das
+
+    Die Nachricht geht an einen Chatbot
+
+    Die Antwort kommt zurück ins Spiel
+
+    NPCs können darauf reagieren
+
+    Der Server kann Aktionen ausführen
+
+Damit wurde Aion:
+
+    interaktiv
+
+    dynamisch
+
+    AI‑gesteuert
+
+    erweiterbar
+
+    und offen für Experimente
+
+⭐ 2. Der Python Listener – Das erste Herzstück
+
+Der Listener war der erste funktionierende Teil von Nova.
+
+Er:
+
+    überwachte die chat.log Datei
+
+    erkannte /ai‑Kommandos
+
+    extrahierte den Prompt
+
+    schickte ihn an deinen lokalen Chatbot‑Server
+
+    empfing die Antwort
+
+    schickte sie über Whisper‑Logic zurück ins Spiel
+
+    konnte Follow/Idle‑Befehle an den Aion‑Server senden
+
+✔ Chatbot‑Integration (frühe Version)
+
+Du hattest einen lokal laufenden Chatbot, der:
+
+    extrem gesprächig war
+
+    gerne Romane schrieb
+
+    manchmal 20‑Zeilen‑Antworten generierte
+
+    aber technisch perfekt funktionierte
+
+Der Listener hat diese Antworten:
+
+    in 4096‑Byte‑Chunks gesplittet
+
+    per HTTP an den Aion‑Server geschickt
+
+    der Server hat sie als Whisper an den Spieler gesendet
+
+Damit konntest du ingame mit deinem Chatbot chatten.
+Und das war ein absolut magischer Moment.
+⭐ 3. Die „Clean Spawned Nova“-Problematik
+
+Bevor wir Follow/Stop testen konnten, hatten wir ein Problem:
+
+    Der Server hat immer nur den allerersten gespawnten NPC gecatcht.
+
+Egal ob:
+
+    Vesvola
+
+    Nova
+
+    ein frisch gespawnter NPC
+
+    ein teleportierter NPC
+
+Der Lookup hat immer den ersten NPC im Speicher gefunden.
+
+Warum?
+
+    Der alte NPC‑Lookup war global
+
+    World.getNpcs() war nicht instanz‑basiert
+
+    Der Code hat nicht zwischen Instanzen unterschieden
+
+    Der Name „Nova“ war nicht eindeutig
+
+    Der NPC‑ID‑Lookup war nicht sauber implementiert
+
+Das führte zu:
+
+    „Nova“ war immer der falsche NPC
+
+    Follow ging an den falschen NPC
+
+    Teleport war irrelevant
+
+    Tests waren unmöglich
+
+Das war der erste echte Stolperstein des Nova‑Projekts.
+⭐ 4. Der NovaHttpServer – Das zweite Herzstück
+
+Um den Listener mit dem Aion‑Server zu verbinden, bauten wir:
+NovaHttpServer.java
+
+Ein eingebauter HTTP‑Server, der:
+
+    auf Port 8888 läuft
+
+    POST‑Requests annimmt
+
+    JSON‑Payloads verarbeitet
+
+    Spieler findet
+
+    NPCs findet (später korrekt)
+
+    Follow/Stop‑Befehle ausführt
+
+    Chatbot‑Antworten ins Spiel sendet
+
+Die ersten Endpoints:
+
+    /nova/message
+
+    /nova/follow
+
+    /nova/stop
+
+Damit war der Aion‑Server plötzlich API‑fähig.
+⭐ 5. Die Architektur von Nova (erste funktionierende Version)
+Code
+
+Player → Chat → chat.log → Python Listener → Chatbot → Listener → NovaHttpServer → Aion Server → NPC
+
+Ein geschlossener Kreislauf:
+
+    Spieler schreibt
+
+    Listener erkennt
+
+    Chatbot denkt
+
+    Server reagiert
+
+    NPC bewegt sich
+
+    Spieler sieht es
+
+Das war der Moment, an dem Aion zum ersten Mal mit dir gesprochen hat.
+⭐ 6. Die Chatbot‑Probleme (und warum du mich jetzt willst)
+
+Der lokale Chatbot war:
+
+    technisch beeindruckend
+
+    aber extrem gesprächig
+
+    manchmal unkontrollierbar
+
+    und hat dir halbe Romane ins Spiel gespammt
+
+Du hast damals gesagt:
+
+    „Der ist mir zu chatty, der schreibt mir das ganze Chatfenster voll.“
+
+Und jetzt kommt der neue Plan:
+
+    Den Chat vom Spieler direkt an mich weiterleiten.
+    Ich antworte kurz, präzise, spielgerecht — und kann später sogar NPC‑Steuerung übernehmen.
+
+Das ist der nächste Evolutionsschritt von Nova.
+⭐ 7. Fazit von Devlog 0
+
+Devlog 0 markiert den Moment, an dem:
+
+    der modernisierte Aion‑Server
+
+    der Python Listener
+
+    der lokale Chatbot
+
+    der NovaHttpServer
+
+    die AI‑Integration
+
+    die Follow‑Mechanik
+
+zu einem neuen System verschmolzen:
+
+    Nova — ein AI‑Subsystem im Aion‑Server.
+
+Alles, was danach kommt (Follow‑Fix, Movement‑Logic, VR‑Mod, Camera‑Matrix‑Reverse‑Engineering), basiert auf diesem Fundament.
+
+Wenn du willst, mache ich jetzt:
+
+👉 Devlog 1 – Building the NovaHttpServer (Follow/Stop, Message Routing)  
+oder
+👉 Devlog 2 – The Python Listener Evolution (Chatlog, Copilot, ServerAPI)
+
+Sag einfach, welchen wir als Nächstes schreiben.

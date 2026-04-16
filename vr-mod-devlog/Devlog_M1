@@ -1,0 +1,249 @@
+Devlog –1 – The Java 7 → Java 11 Migration Hell
+The most painful refactor in the entire Aion‑Server journey — including the GameServer.java rewrite.
+1. Warum wir das überhaupt gemacht haben
+
+Der Aion‑EMU‑Server war alt.
+Nicht „ein bisschen alt“, sondern:
+
+    Java‑7‑Ära
+
+    Libraries von 2012
+
+    Build‑Systeme, die nur durch Glück funktionierten
+
+    Reflection‑Hacks, die in modernen JVMs verboten sind
+
+    doppelte Namespaces
+
+    doppelte Dateien
+
+    Interfaces, die nie implementiert wurden
+
+    und eine GameServer.java, die so monolithisch war, dass sie eigentlich als Endgegner in Dark Souls hätte dienen können
+
+Aber wir brauchten:
+
+    moderne Java‑Version
+
+    stabilen Code
+
+    Debug‑Fähigkeit
+
+    Erweiterbarkeit
+
+    und eine Basis für Nova (AI‑Integration, HTTP‑Server, Listener, VR‑Mod)
+
+Also:
+Java 7 → Java 11  
+Ein Upgrade, das sich wie ein kompletter Neuaufbau anfühlte.
+⭐ 2. Die ersten Symptome: Alles bricht
+
+Sobald wir auf Java 11 kompiliert haben, explodierte der Server in einer Orgie aus Fehlermeldungen:
+
+    IllegalAccessError
+
+    ClassNotFoundException
+
+    NoSuchMethodError
+
+    InaccessibleObjectException
+
+    Module java.xml.bind not found
+
+    javax.script.ScriptEngineManager nicht mehr vorhanden
+
+    javafx.* komplett entfernt
+
+    Nashorn tot
+
+    JAXB tot
+
+    Logging‑Frameworks tot
+
+    XML‑Parser tot
+
+    Reflection‑Zugriffe verboten
+
+Und das war nur der erste Startversuch.
+⭐ 3. Die GameServer.java – Der Endgegner
+
+Die GameServer.java war:
+
+    gigantisch
+
+    unübersichtlich
+
+    voll mit statischen Initialisierungen
+
+    voll mit Reflection‑Magie
+
+    voll mit „wir laden alles beim Start“
+
+    voll mit „wir fangen jede Exception und ignorieren sie“
+
+    voll mit Code, der seit Jahren niemand mehr angefasst hatte
+
+Und Java 11 hat uns dafür bestraft.
+Die größten Probleme:
+🔥 3.1 Reflection‑Zugriffe auf interne JVM‑Klassen
+
+Java 11 blockiert das.
+Java 7 hat es erlaubt.
+Der Server hat es exzessiv genutzt.
+🔥 3.2 Initialisierung in falscher Reihenfolge
+
+Viele Systeme wurden in der GameServer.java in einer Reihenfolge geladen, die nur zufällig funktionierte.
+
+Java 11 ist strenger → Reihenfolgefehler → Crash.
+🔥 3.3 Dead Code, der trotzdem ausgeführt wurde
+
+Java 11 hat plötzlich Codepfade aktiviert, die unter Java 7 nie erreicht wurden.
+🔥 3.4 Module‑System
+
+Java 11 hat Module.
+Der Aion‑Server hat Chaos.
+
+Beides zusammen → Krieg.
+🔥 3.5 Doppelte Namespaces
+
+Beispiel:
+
+    com.aionemu.gameserver.model.*
+
+    com.aionemu.gameserver.model.gameobjects.*
+
+    com.aionemu.gameserver.model.gameobjects.player.*
+
+… und dann dieselben Klassen nochmal in einem anderen Ordner.
+
+Die GameServer.java hat wild aus beiden Versionen importiert.
+⭐ 4. Das Refactoring der GameServer.java
+
+Das war der Moment, an dem du gesagt hast:
+
+    „Ich bekomme Kopfschmerzen, wenn ich nur daran denke.“
+
+Und das völlig zurecht.
+Was wir tun mussten:
+✔ 4.1 Initialisierung komplett neu ordnen
+
+Wir mussten:
+
+    Netzwerk
+
+    Datenbank
+
+    World
+
+    AI
+
+    SpawnEngine
+
+    ScriptEngine
+
+    PacketHandler
+
+    ConfigLoader
+
+… in eine logische Reihenfolge bringen.
+✔ 4.2 Reflection‑Zugriffe entfernen oder ersetzen
+
+Viele Stellen mussten umgeschrieben werden, weil Java 11 sie blockiert.
+✔ 4.3 Doppelte Klassen zusammenführen
+
+Wir mussten:
+
+    Unterschiede vergleichen
+
+    Logik mergen
+
+    Dead Code entfernen
+
+    Imports korrigieren
+
+    sicherstellen, dass die richtige Version geladen wird
+
+✔ 4.4 Common‑Namespace auflösen
+
+Das common‑Package war ein Müllcontainer.
+Wir mussten es:
+
+    aufteilen
+
+    neu strukturieren
+
+    in Module zerlegen
+
+    Abhängigkeiten korrigieren
+
+✔ 4.5 Interface‑Logic reparieren
+
+Viele Interfaces waren:
+
+    unvollständig
+
+    falsch implementiert
+
+    doppelt implementiert
+
+    oder gar nicht implementiert
+
+Wir mussten:
+
+    Implementierungen korrigieren
+
+    Interfaces neu definieren
+
+    Abhängigkeiten auflösen
+
+✔ 4.6 Build‑System modernisieren
+
+Ant → Maven/Gradle
+Classpath → Modulepath
+Legacy‑JARs → neue Libraries
+⭐ 5. Der Moment, an dem der Server wieder startete
+
+Nach Tagen voller:
+
+    Fehlermeldungen
+
+    Stacktraces
+
+    Refactorings
+
+    Merge‑Konflikte
+
+    Kaffee
+
+    Verzweiflung
+
+    und „Warum mache ich das eigentlich?“
+
+… startete der Server plötzlich:
+Code
+
+GameServer started successfully on Java 11.
+
+Das war der Moment, an dem klar wurde:
+
+    „Wenn wir DAS überlebt haben, können wir alles bauen — sogar Nova.“
+
+⭐ 6. Warum dieser Kampf wichtig war
+
+Ohne diese Migration wäre NICHTS möglich gewesen:
+
+    kein NovaHttpServer
+
+    kein Python Listener
+
+    keine Chatbot‑Integration
+
+    keine Follow/Stop‑Mechanik
+
+    keine AI‑Erweiterung
+
+    keine VR‑Mod‑Vorbereitung
+
+    keine moderne Entwicklungsbasis
+
+Die Java‑Migration war der Grundstein für das gesamte Projekt.

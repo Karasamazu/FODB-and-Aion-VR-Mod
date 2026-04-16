@@ -1,0 +1,171 @@
+⭐ Devlog –2 – The Aion‑EMU Legacy Codebase
+Before Nova existed — the ancient server code that started it all.
+
+Bevor das Nova‑Projekt überhaupt geboren wurde, arbeitete ich mit einer alten, riesigen und technisch veralteten Codebasis:
+dem Aion‑EMU Server, der Grundlage für meinen privaten Aion‑5.8‑Server.
+
+Diese Codebasis war:
+
+    über 10 Jahre alt
+
+    auf Java 7 geschrieben
+
+    voll mit deprecated APIs
+
+    mit Libraries, die nicht mehr existierten
+
+    mit einem chaotischen Build‑System
+
+    mit Classloader‑Hacks
+
+    mit Modulen, die nie für moderne Java‑Versionen gedacht waren
+
+    und mit Strukturen, die über Jahre gewachsen waren
+
+Kurz gesagt:
+
+    „Der Aion‑EMU‑Server war ein technisches Fossil — aber ein faszinierendes.“
+
+⭐ 1. Die Probleme der alten Codebasis
+
+Und hier kommt jetzt der Teil, der dir bis heute Kopfschmerzen macht — völlig zu Recht.
+🔥 1.1 Interface‑Logic‑Implementation‑Chaos
+
+Viele Interfaces waren:
+
+    unvollständig
+
+    doppelt implementiert
+
+    falsch implementiert
+
+    oder gar nicht implementiert
+
+Manche Klassen:
+
+    implementierten Interfaces, die sie gar nicht brauchten
+
+    implementierten Methoden, die nie aufgerufen wurden
+
+    oder implementierten Methoden, die eigentlich in einer anderen Klasse hätten sein sollen
+
+Das führte zu:
+
+    zirkulären Abhängigkeiten
+
+    unklaren Verantwortlichkeiten
+
+    und Debugging‑Sessions, die sich wie Archäologie anfühlten
+
+🔥 1.2 Das Common‑Namespace‑Desaster
+
+Das common‑Package war ein Müllcontainer für alles, was niemand wusste, wohin gehört.
+
+Dort lagen:
+
+    Utility‑Klassen
+
+    Core‑Klassen
+
+    Netzwerk‑Klassen
+
+    AI‑Klassen
+
+    Datenbank‑Klassen
+
+    und sogar UI‑Klassen
+
+Alles in einem einzigen Namespace.
+
+Das führte zu:
+
+    Namenskollisionen
+
+    Import‑Chaos
+
+    unklaren Modulgrenzen
+
+    und dem Gefühl, dass das Projekt eigentlich ein Monolith ist, der vorgibt modular zu sein
+
+🔥 1.3 Double‑Namespaces & File‑Merging‑Hölle
+
+Das war der schlimmste Teil.
+
+Es gab:
+
+    doppelte Klassen
+
+    doppelte Namespaces
+
+    doppelte Dateien
+
+    doppelte Implementierungen derselben Logik
+
+    teilweise sogar zwei Versionen derselben Klasse, die beide kompilierten, aber nur eine davon zur Laufzeit benutzt wurde
+
+Beispiele:
+
+    com.aionemu.gameserver.model.*
+
+    com.aionemu.gameserver.model.gameobjects.*
+
+    com.aionemu.gameserver.model.gameobjects.player.*
+
+… und dann nochmal dieselben Klassen in einem anderen Ordner.
+
+Das führte zu:
+
+    „Warum wird diese Änderung nicht ausgeführt?“
+
+    „Warum wird diese Klasse nicht geladen?“
+
+    „Warum gibt es diese Datei zweimal?“
+
+    „Warum ist die eine Version 8 Jahre älter als die andere?“
+
+Und natürlich:
+
+    „Warum zur Hölle kompiliert das überhaupt?“
+
+🔥 1.4 Das Mergen der doppelten Dateien
+
+Das war ein eigenes Projekt:
+
+    Unterschiede vergleichen
+
+    Logik zusammenführen
+
+    Dead Code entfernen
+
+    Imports korrigieren
+
+    Namespaces neu strukturieren
+
+    Build‑System anpassen
+
+    sicherstellen, dass die richtige Version geladen wird
+
+Das war kein Refactor.
+Das war digitale Archäologie.
+
+Und ja —
+Kopfschmerzen garantiert.
+⭐ 2. Warum das alles wichtig war
+
+Ohne diese Aufräumarbeiten wäre Nova nie möglich gewesen.
+
+Denn Nova brauchte:
+
+    klare Strukturen
+
+    stabile Module
+
+    moderne Java‑Version
+
+    funktionierende AI‑Hooks
+
+    saubere Namespaces
+
+    und einen Server, der nicht bei jeder Änderung explodiert
+
+Die Modernisierung des Aion‑EMU‑Servers war also der Grundstein für alles, was danach kam.
