@@ -1,0 +1,12 @@
+
+- Comming Soon (State: APR 2026):
+- JOIN UP TO 20 TABLES AT ONCE (in development)
+- The option to concat via "OR" where clause combinations written with AND's (in conception) - Improve scrolling in result window (in conception) - dynamic column width.
+
+Old feature news (State: APR 2026):
+
+- Central Configuration implemented to tune the database in all directions with 4 simple maximum values for column, row, and max output size and a minimal value for the column size According to the special needs these values can be increased or reduced to get the best performance possible. Special Recompilation of me has to be done but it is only changing 4 values and recompile now.(done) - Performance again improved by factor 4-8 (Done) - New better and more appealing UI developed that dynamicall resizes according to users configured screen resolution (Done) - Multirow Feature - Fire several commands in one sql file (Done) - Space-Signs in insert values will be automatically converted to underscores (done as well as hash sign processing)
+- Performance of JOIN significantly tuned. (500k times 500k of row combinations with 38 columns in about 215 minutes)
+- A performance tuned version that has the select option for up to 37 where conditions that can be concatenated nativly with " AND " --> DONE
+- The option to concat via "OR" where clause combinations written with AND's (in conception)
+- A ROLEBACK and BACKUP Feature (in serious conception) -> DONE 

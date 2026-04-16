@@ -1,0 +1,316 @@
+ Here are the install instructions
+A bit further down are some hints on how to use the DB programatically
+
+- First:
+
+download the FODB...zip - file and put it into the root folder of your
+programming-project, or where ever u want to use the DB with its graphic interface (if your prog has file access there).
+
+- Second:
+
+Unzip the content and go into the subfolder (Release - folder / In Linux the most inner folder):
+
+locate the dynResolutionmain.py or in Windows the FODB...GUI_V2.exe - these are the GUI files you can execute.
+
+!!!! in Linux do in addition that:
+
+- open most inner folder with the Terminal and fire the following commands to give the Database-files execute - rights.
+
+sudo chmod +x FODB_* sudo chmod +x fodb * sudo chmod +x Count * And sudo chmod *.exe
+
+(Attention: in Windows you are doing the following monkey-dance: execute the FODB_test_GUI_V2.exe
+rogram WITH ADMINISTRATORRIGHTS ) (Keep an eye on your AntiVirus / Internet Security - Software
+if it runs the database in sandbox. If so --> click "dont run in sandbox" or "full acces" or whatever).
+HINT: u often see that programms run in a virtual sanbox if the window has a colorful or
+red/pink/.. border around) If so -->, after giving the DB full acces for AntiVirus/Internet Security -
+restart the DB as ADMINISTRATOR. If the colorful frame or the colorful border is gone u can continue.)
+
+- Third :
+
+Installation already finishd. Now u have 2 choices:
+
+- Open the "little SQL - Helper"- graphic interface via
+executing the File FODB_test_GUI_V2.exe / (Ubuntu: LinuuxGlade - exe )
+Then u can fire SQLs rename tables and column-names
+and so on. In both versions the cmd-tool is called FragDieFodb.exe
+OR..
+
+If you want to use the FODB in your programming project and / or want to call the core direct
+because of performance reasons like so: please read the more detailed documentation
+
+FODB_test_GUI_V2.FIRE_ATOMIC_SQL("SELECT customerName, customerPhone, Adress from CUSTOMERS ROWK100")
+
+and then the Result is written into the SelectOUTPUT.txt - File. Its formated in
+csv with ";" (Semicolon) as seperator and with "#" - Signs as encloser.
+
+! Attention ! when u fire HUGE queries like 38 Columns and over 1Million Rows,
+give the DB 1-2 Sec to finish writing the file ;)
+
+              
+
+ 
+              #####################         THATs IT ! Have fun with the DB :)        ######################### 
+              
+
+            
+
+HERE ARE SOME SYNTAX EXAMPLES
+
+INSERT INTO T1 Dies;ist;ein;Beispiel;Eintrag;mitÜblenSünderzeichen
+INSERT INTO T1 This;is;an;example;insert;including;strange;signs;öööüüääää
+
+WICHTIG: Bei Insert einträgen Leerzeichen stattdessen Unterstrich verwenden und
+keine einfachen Hochkommata!!!!
+
+WICHTIG: Wenn man BULK INSERT INTO T1 schreibt hinter das T1 noch ein LEERZEICHEN bevor
+die neue zeile kommt & Am Ende eines Bulk Inserts kommt eine Zeile mit den 3 Zeichen "EOS"
+(End Of STATEMENT). NICHT normale und BULK-Befehle mixen oder gleichzeitig ausführen!
+
+WICHTIG: aktuell KEINE ALIAS NAMEN bei BULK INSERT INTO
+
+IMPORTANT: instead of spaces (in single values for columns) use underscore and NO single
+char-ticks like >> ' ' !!!
+
+IMPORTANT: If U Fire the BULK INSERT INTO command u have to put an space after the tablename
+T1 (or the like) before the next line begins
+
+IMPORTANT: at the moment : DONT use alias names in Bulk Inserts !!!
+
+Hint: the where condition 1=1 only makes sense with HUGE tables. At the beginning ROWG(n)
+or a wide between clause is much faster! Between clause is tested with a range up to 100k rows .
+
+Hint:
+The maximum column width is about 65000 signs.
+The maximum row width is about 490600 signs.
+The maximum column width is about 24800000 signs.
+(but even then an buffer overflow logik should write all into result,
+flush the result array and continue)
+
+Select * from T1 1=1
+Select * from T1 ROWG5
+Select * from T1 ROWK7
+Select C1;C2;C3;C4;C5;C6 from T1 ROWK7 Select C1;C2;C3;C4;C5;C6 from T1 BETWEEN30AND40 (optimized in Ubuntu 24.04 version)
+
+ATTENTION the in the linux-terminal-version columns are separated with "," --> Select C1,C2,C3,C4,C5,C6 from T1 ROWK7
+Select C3;C6;C12;C15;C17 from T1 ROWK7 (Achtung / Attetention : max: 38)
+
+Select C1;C2;C3;C4 from T1 1=1 JOIN Select C5;C6;C7;C8 from T5 1=1 ON C1=C7
+
+Important info for count selects: You may only select 37 columns at once - the 38th column is then used for counting!
+
+Select COUNT C3;C4;C5;C20 from T3 C5=Hans
+
+Select COUNT DISTINCT C4;C5;C20 from T3 C5=Hans (comming soon in Ubuntu 24.04 version)
+
+JOIN-Select SELECT C1;C2;C3;C4 from T1 1=1 JOIN SELECT C1;C2;C3;C4 FROM T3 1=1 ON C1=C2
+
+first create FK from relational table T3 (here EMP_CUST) to T1 (here CUSTOMER) (in T3 is C2 = FK_ID_CUSTOMER and C1 is primary key in T1)
+CREATE FK FKEMPCUSTCUST ON T3 REF C2 TO T1 REF C1
+than create second
+CREATE FK FKEMPCUSTEMP ON T3 REF C3 TO T2 REF C1
+
+Update T1 C3=NeuerEintrag ROWG6
+Update T1 C3=NeuerEintrag ROWK2
+Update T1 C3=NeuerEintrag 1=1
+Update T1 C3=NeuerEintrag C5=Hans
+Update T1 C3=NeuerEintrag BETWEEN30AND40
+
+Delete T1 C5=Hans
+Delete T1 1=1
+Delete T1 ROWG11
+Delete T1 ROWK9
+
+Select * from T1 BETWEEN120AND1400
+
+Bulk Insert Into T1
+Erste;Zeile;des;BulkInserts;bla;die;blub;und;blaaaaaaaaaa;die;blub;die;blaaa;die;blub;die;bla
+Zwote;Zeile;des;BulkInserts;bla;die;blub;und;blaaaaaaaaaa;die;blub;die;blaaa;die;blub;die;bla
+Dritte;Zeile;des;BulkInserts;Funef;sechs;sieben;acht;Neun;Zehn;elf;zwölf;dreizehn;vierzehn
+Vierte;Zeile;des;BulkInserts;Funef;sechs;sieben;acht;Neun;Zehn;elf;zwölf;dreizehn;vierzehn
+Fuenfte;Zeile;des;BulkInserts;Funef;sechs;sieben;acht;Neun;Zehn;elf;zwölf;dreizehn;vierzehn
+sechste;Zeile;des;BulkInserts;Funef;sechs;sieben;acht;Neun;Zehn;elf;zwölf;dreizehn;vierzehn
+Siebente;Zeile;des;BulkInserts;Funef;sechs;sieben;acht;Neun;Zehn;elf;zwölf;dreizehn;vierzehn
+achte;Zeile;des;BulkInserts;Funef;sechs;sieben;acht;Neun;Zehn;elf;zwölf;dreizehn;vierzehn
+neunte;Zeile;des;BulkInserts;Funef;sechs;sieben;acht;Neun;Zehn;elf;zwölf;dreizehn;vierzehn
+
+RENAME T4 TO ORDERDETAILS
+
+RENCOL IN T1 from C8 TO city
+
+MULTYROWSTMT (introduced in Ubuntu 24.04 version - all tests good so far :), but better use sql scripts) läutet ein multy row statement ein z.B.
+abwechselnd rename, select, insert befehle, etc. ATTENTION ! YOU MAY MIX BULK AND NORMAL STATEMENTS. If a line starts with a hash sighn it is processed as a comment !!!! IF NOT as a COMMAND !!!!
+
+3 signs are as column values FORBIDDEN !!!! the ';' the '#'(Hash declares now a comment line in a multy-row-statement - introduced in the Ubuntu 24.04 version), and the single quote itself.
+!!!!: (In linux the normal "," is in the terminal-version the column separator and therefore forbidden / should be used only intentional
+as well. s. first SELECT-example) Space signs are replaced with underscores - If the user input #-values anyway they are replaced with (HASH)
+i.e. : Osaka_Souveniers_Co
+
+You may use backslashes but has to escape them with another backslash
+
+ALL OTHER LATIN SIGNS ARE ALLOWED !
+
+Important for the linux version. In the GUI:
+- ALWAYS - load the Alias of tables and columns BEFORE Setting them !!!!
+
+NEW SQL EXAMPLES STATE: FEB 2025
+
+Introduced in Ubuntu 24.04 version- an BACKUP DATABASE, and RESTORE DATABASE Feature - to create and restore whole snapshots of the database.
+
+I just copied some lines from my c# testcode were I fill a List of commands for later execution.
+
+sqlCommandsToTest.Add("SELECT C1;C2;C3;C4;C5;C6;C7;C8;C9;C10 FROM T1 C4=Julie AND ROWK30");
+
+sqlCommandsToTest.Add("SELECT C11;C12;C13;C14;C15;C16;C17;C18;C19;C20 FROM T1 ROWG2 AND C2=Osaka_Souveniers_Co.");
+
+sqlCommandsToTest.Add("SELECT C21;C22;C23;C24;C25;C26;C27;C28;C29;C30 FROM T1 ROWG222 AND C5=Sean");
+
+sqlCommandsToTest.Add("SELECT C31;C32;C33;C34;C35;C36;C37;C38 FROM T1 BETWEEN111AND222 AND C8=NULL");
+
+sqlCommandsToTest.Add("SELECT COUNT C1;C2;C3;C4 FROM T1 1=1") ;
+
+sqlCommandsToTest.Add("SELECT COUNT C1;C2;C3 FROM T1 ROWK8");
+
+sqlCommandsToTest.Add("SELECT COUNT C2 FROM T1 ROWG8 ");
+
+sqlCommandsToTest.Add("SELECT COUNT C1;C4 FROM T1 BETWEEN4AND10 ");
+
+sqlCommandsToTest.Add("UPDATE T1 C2=TestOne C1=448");
+
+sqlCommandsToTest.Add("SELECT * FROM C1=448");
+
+sqlCommandsToTest.Add("UPDATE C3=TestTwo C4=_Julie");
+
+sqlCommandsToTest.Add("SELECT * FROM T1 C4=_Julie");
+
+sqlCommandsToTest.Add("UPDATE T1 C4=TestThree ROWK4");
+
+EXTREME EXAMPLE:
+
+string complexWhereClause = "C1=TValue_1 AND C2=TValue_2 AND C3=TValue_3 AND C4=TValue_4 AND C5=TValue_5 AND C6=TValue_6 AND ";
+
+complexWhereClause += "C7=TValue_7 AND C8=TValue_8 AND C9=TValue_9 AND C10=TValue_10 AND C11=TValue_11 AND C12=TValue_12 AND ";
+
+complexWhereClause += "C13=TValue_13 AND C14=TValue_14 AND C15=TValue_15 AND C16=TValue_16 AND C17=TValue_17 AND C18=TValue_18 AND ";
+
+complexWhereClause += "C19=TValue_19 AND C20=TValue_20 AND C21=TValue_21 AND C22=TValue_22 AND C23=TValue_23 AND C24=TValue_24 AND ";
+
+complexWhereClause += "C25=TValue_25 AND C26=TValue_26 AND C27=TValue_27 AND C28=TValue_28 AND C29=TValue_29 AND C30=TValue_30 AND ";
+
+complexWhereClause += "C31=TValue_31 AND C32=TValue_32 AND C33=TValue_33 AND C34=TValue_34 AND C35=TValue_35 AND C36=TValue_36 AND ";
+
+complexWhereClause += "C37=TValue_37 AND C38=TValue_38";
+
+sqlCommandsToTest.Add("SELECT C1;C2;C3;C4;C5;C6;C7;C8;C9;C10 FROM T1 " + complexWhereClause);
+
+Wenn ich die DB programmatisch aufrufen will nutze ich für gewöhnlich eine Funktion wie die folgende /
+If I want to use the DB programatically I usually call then a method like the following:
+
+                
+                  static void LaunchCommandLineApp(string p_path_to_db, string p_SQL_Command)
+                {
+                  string ex2 = p_path_to_db;
+
+                    // Use ProcessStartInfo class
+                    ProcessStartInfo startInfo = new ProcessStartInfo();
+                    startInfo.CreateNoWindow = false;
+                    startInfo.UseShellExecute = false;
+                    //startInfo.FileName = "dcm2jpg.exe";
+                    startInfo.WorkingDirectory = pathToDb.Replace("\\FragDieFODB.exe", "");
+                    startInfo.FileName = p_path_to_db;
+                    startInfo.WindowStyle = ProcessWindowStyle.Hidden;
+                    // startInfo.Arguments = "-f j -o \"" + ex1 + "\" -z 1.0 -s y " + ex2 + " " + p_SQL_Command;
+                    //startInfo.Arguments = "-f j -o " + p_SQL_Command;
+                    startInfo.Arguments =  p_SQL_Command;
+                    startInfo.RedirectStandardOutput = false;
+                    try
+                    {
+                        // Start the process with the info we specified.
+                        // Call WaitForExit and then the using statement will close.
+                        using (Process exeProcess = Process.Start(startInfo))
+                        {
+                            exeProcess.WaitForExit();
+                            string currentFodbCallOutput = "dummyOutput";// exeProcess.StandardOutput.ReadToEnd().ToUpper(); 
+                            //
+                            if (currentFodbCallOutput.Contains("EXCEPTION"))
+                            {
+                                throw new Exception("inner FragDieFODB-Exception !!!! \n");
+                            }
+                            File.AppendAllText("currenTestRunLogfile.log", "currentFodbCallOutput for comman " + 
+                            p_SQL_Command  + " \n is  : " + currentFodbCallOutput + " \n");
+                        }
+                        }
+                        catch (Exception warum)
+                        {
+                      Console.WriteLine("Exception in LaunchCommandLineApp " + warum.Message + "\n" + warum.StackTrace + 
+                        "\n" + warum.InnerException + "\n" + warum.Source + "\n"+
+                            " with PARAMETER:  " + p_path_to_db + " and " + p_SQL_Command + "\n");
+                            }
+                }
+               
+            
+
+Oder eine wie die folgende wenn ich mehrere statements habe / Or one like the following if I have multiple
+satements:
+
+ATTENTION Sometimes startInfo.RedirectStandardOutput = true; leads to hanging process without reason (an EOF is swallowed in Windows processing). In that case switch that to false, and handle output different if neccessary !
+
+              
+                static void LaunchCommandLineAppMultiple(string p_path_to_db, List '<'string'>' p_SQL_Commands)
+                  {
+                    string ex2 = p_path_to_db;
+          
+                      // Use ProcessStartInfo class
+                      ProcessStartInfo startInfo = new ProcessStartInfo();
+                      startInfo.CreateNoWindow = true;
+                      startInfo.UseShellExecute = false;
+                      //startInfo.FileName = "dcm2jpg.exe";
+                      startInfo.WorkingDirectory = pathToDb.Replace("\\FragDieFODB.exe", "");
+                      startInfo.FileName = p_path_to_db;
+                      startInfo.WindowStyle = ProcessWindowStyle.Hidden;
+                      // startInfo.Arguments = "-f j -o \"" + ex1 + "\" -z 1.0 -s y " + ex2 + " " + p_SQL_Command;
+                      //startInfo.Arguments = "-f j -o " + p_SQL_Command;
+                      
+                      startInfo.RedirectStandardOutput = true;
+                      string singleCommandOuter = "";
+                      List allsingleResults = new List'<'string'>'();
+          
+                      try
+                      { 
+                          // foreach command 
+                          foreach (string singleCommand in p_SQL_Commands)
+                          {
+                              singleCommandOuter = singleCommand; 
+                              startInfo.Arguments = singleCommand; 
+          
+                              // Start the process with the info we specified.
+                              // Call WaitForExit and then the using statement will close.
+                              using (Process exeProcess = Process.Start(startInfo))
+                              { 
+                                while (!exeProcess.StandardOutput.EndOfStream)
+                                  {
+                                    string line = exeProcess.StandardOutput.ReadLine();
+                                      allsingleResults.Add("Result of command " + singleCommand + 
+                                      " is: \n" + line);
+                                      if (line.Contains("EXCEPTION") || line.Contains("Exception") ||
+                                      line.Contains("exception"))
+                                      {
+                                          throw new Exception("inner FragDieFODB-Exception !!!! \n");
+                                      }
+                                      Console.WriteLine(line);
+                                  }
+                                    
+                                  File.AppendAllText("currenTestRunLogfile.log", 
+                                  "currentFodbCallOutput for command " + singleCommand +  " \n");
+                              } 
+                          } 
+                          File.AppendAllLines("MultipleCommandResult.log", allsingleResults);
+                          }
+                          catch (Exception warum)
+                          {
+                          Console.WriteLine("Exception in LaunchCommandLineApp " + warum.Message + "\n" + warum.StackTrace + 
+                          "\n" + warum.InnerException + "\n" + warum.Source + "\n" +
+                              " with PARAMETER:  " + p_path_to_db + " and " + singleCommandOuter + "\n");
+                          }
+                  }               
+              
+            

@@ -1,0 +1,6 @@
+ - Comming Soon (State: MAE 2025):
+True AION 5.8 VR-Mod (in development) - Envision/Monado-Wine-AionClient-Setup in Ubuntu 24.04 - AI-NPC-Companion : Fighting skills, first AI control NPC movement direct - further donations strongly needed :)
+
+Already Done (State: MAE 2025):
+
+- implement the chatbot into Aion - > in game chat functionality can be used to write with the chatbot and it respons via wisper chat. - AI-Companion : AI can catch a specific NPC and follows the player inside the game. 
