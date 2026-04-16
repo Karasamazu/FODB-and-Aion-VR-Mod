@@ -1,0 +1,290 @@
+Devlog 1 – Building the NovaHttpServer
+How Aion gained an internal HTTP API for AI‑driven NPC control.
+
+Nachdem Nova im Devlog 0 als Konzept geboren wurde — Listener, Chatbot‑Integration, Whisper‑Antworten — brauchten wir den nächsten großen Baustein:
+
+    Einen eingebauten HTTP‑Server im Aion‑Server, der Befehle annimmt, Spieler findet, NPCs steuert und Chatbot‑Antworten ins Spiel schickt.
+
+Damit begann die Entwicklung des NovaHttpServer.java.
+⭐ 1. Warum ein HTTP‑Server im GameServer?
+
+Der Python‑Listener konnte:
+
+    Chatlog lesen
+
+    Chatbot ansprechen
+
+    Antworten empfangen
+
+Aber er konnte nicht direkt mit dem Aion‑Server interagieren.
+
+Wir brauchten:
+
+    eine API
+
+    einen Kommunikationskanal
+
+    Follow/Stop‑Befehle
+
+    Message‑Routing
+
+    eine Grundlage für spätere AI‑Steuerung
+
+Die Lösung:
+
+    NanoHTTPD direkt in den Aion‑Server einbetten.
+
+Damit wurde der GameServer API‑fähig.
+⭐ 2. NovaHttpServer.java – Der erste funktionierende Prototyp
+
+Der NovaHttpServer:
+
+    startete auf Port 8888
+
+    akzeptierte POST‑Requests
+
+    las JSON‑Payloads
+
+    extrahierte Spieler‑ und Nachrichtenfelder
+
+    schickte Nachrichten an Spieler
+
+    führte Follow/Stop‑Befehle aus
+
+Die wichtigsten Endpoints:
+/nova/message
+
+→ Chatbot‑Antworten ins Spiel
+/nova/follow
+
+→ Follow‑Mechanik starten
+/nova/stop
+
+→ Follow‑Mechanik stoppen
+
+Damit war Nova erstmals handlungsfähig.
+⭐ 3. Message Routing – Chatbot → Server → Spieler
+
+Der Listener sendete Chatbot‑Antworten an:
+json
+
+{ "player": "Karasamazu", "message": "..." }
+
+Der NovaHttpServer:
+
+    fand den Spieler
+
+    nutzte PacketSendUtility.sendNovaMessage()
+
+    sendete die Antwort als Whisper ins Spiel
+
+Damit konntest du ingame mit deinem Chatbot reden.
+⭐ 4. Follow‑Mechanik – Technischer Deep Dive
+
+Die Follow‑Mechanik besteht aus mehreren Schritten, die tief in den Aion‑Server eingreifen.
+Hier ist die komplette Pipeline:
+⭐ 4.1 Raw POST Data → JSON Parsing
+
+Der Server erhält:
+json
+
+{ "target": "Karasamazu" }
+
+Da wir keinen JSON‑Parser nutzen, sondern eine handgeschriebene Methode, passiert:
+
+    Suche nach "target"
+
+    Suche nach :
+
+    Suche nach dem nächsten "
+
+    Extraktion des Wertes
+
+Simpel, aber effektiv.
+⭐ 4.2 Player‑Lookup (World → Player)
+java
+
+Player targetPlayer = World.getInstance().findPlayer(targetName);
+
+Das macht intern:
+
+    HashMap‑Lookup
+
+    Name‑Index
+
+    Online‑Check
+
+Wenn der Spieler nicht online ist → Follow bricht ab.
+⭐ 4.3 NPC‑Lookup (Clean‑Spawned‑Nova‑Bug)
+
+Der naive Code:
+java
+
+for (VisibleObject obj : World.getInstance().getNpcs())
+
+war falsch, weil:
+
+    globaler NPC‑Pool
+
+    keine Instanz‑Trennung
+
+    der erste NPC im Speicher zurückgegeben wurde
+
+    egal, welchen Namen oder welche ID wir suchten
+
+Das führte zu:
+
+    Nova war immer der falsche NPC.
+    Teleport war irrelevant.
+    Follow funktionierte nicht.
+
+Der korrekte Ansatz (später):
+java
+
+for (WorldMapInstance instance : World.getInstance().getWorldMapInstances()) {
+    for (Npc npc : instance.getNpcs()) {
+        if (npc.getName().equalsIgnoreCase(name) || npc.getNpcId() == npcId) {
+            return npc;
+        }
+    }
+}
+
+⭐ 4.4 AI‑Casting (NpcAI2 → FollowingNpcAI2)
+
+Jeder NPC hat ein AI‑Objekt:
+java
+
+npc.getAi2()
+
+Wir prüfen:
+java
+
+if (!(nova.getAi2() instanceof FollowingNpcAI2)) {
+    return error("Nova AI is not 'following'");
+}
+
+Dann casten:
+java
+
+FollowingNpcAI2 ai = (FollowingNpcAI2) nova.getAi2();
+
+Wenn:
+
+    AI null → Fehler
+
+    falscher AI‑Typ → Fehler
+
+⭐ 4.5 Follow‑Logik ausführen (handleFollowMe)
+
+Der entscheidende Moment:
+java
+
+ai.handleFollowMe(targetPlayer);
+
+Was intern passiert:
+✔ AI setzt Follow‑State
+
+    merkt sich den Spieler
+
+    aktiviert Follow‑Mode
+
+✔ Movement‑Engine übernimmt
+
+    Pathfinding
+
+    Movement‑Ticks
+
+    Distanz‑Checks
+
+✔ Server‑Tick‑Loop
+
+NPC bewegt sich bei jedem Tick.
+
+Wichtig:  
+Wir nutzen hier nur die vorhandene Follow‑Logik des Spiels.
+Wir haben NOCH KEINE eigene Movement‑ oder Positions‑Logik implementiert.
+⭐ 4.6 Stop‑Follow (handleStopFollow)
+java
+
+ai.handleStopFollow();
+
+Das:
+
+    setzt Follow‑State zurück
+
+    stoppt Movement
+
+    setzt AI in Idle‑State
+
+⭐ 5. Logging – Die wichtigste Debug‑Waffe
+
+Wir loggen:
+
+    Raw POST data
+
+    Extracted target
+
+    Player lookup
+
+    NPC lookup
+
+    AI type
+
+    Follow success
+
+    Errors
+
+Diese Logs waren entscheidend, um:
+
+    JSON‑Parsing‑Fehler zu finden
+
+    AI‑Casting‑Fehler zu erkennen
+
+    die Clean‑Spawned‑Nova‑Problematik zu verstehen
+
+    Follow‑Fehler zu debuggen
+
+⭐ 6. Was wir NOCH NICHT haben (wichtig für später)
+
+Aktuell nutzen wir nur die vorhandene Follow‑Logik des Spiels.
+
+Wir haben NOCH KEINE:
+
+    Player‑Positions‑API
+
+    NPC‑Positions‑API
+
+    Movement‑Injection
+
+    Pathfinding‑Override
+
+    AI‑State‑Machine
+
+    Behavior Trees
+
+    Tick‑basierte Updates
+
+    Environment Awareness
+
+Das wird alles für Nova 2.0 wichtig — wenn du willst, dass ich später NPCs steuere.
+⭐ 7. Fazit von Devlog 1
+
+Devlog 1 markiert den Moment, an dem:
+
+    der Aion‑Server eine API bekam
+
+    der Listener mit dem Server sprechen konnte
+
+    Follow/Stop technisch möglich wurden
+
+    Chatbot‑Antworten ins Spiel kamen
+
+    Nova ein echtes Subsystem wurde
+
+Auch wenn der NPC‑Lookup noch kaputt war, war die Architektur solide.
+
+Nova konnte sprechen.
+Nova konnte folgen.
+Nova konnte stoppen.
+
+Und das ist erst der Anfang.
