@@ -68,7 +68,7 @@ Camera system analysis ongoing.
 
 If you want to support development, you can:
 
-    donate via Ko‑fi (comming soon) - please use my 4 different ways to help me with donations
+    donate via Ko‑fi : https://ko-fi.com/karasamazu - or use the 4 different ways to help me with donations on my own website
 
     share the project
 
