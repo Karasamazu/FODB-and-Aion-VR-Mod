@@ -80,5 +80,5 @@ Every bit of support helps — I currently work part‑time and build these proj
 🔗 Links
 
 Website: https://fodb-database.dnsuser.de/ (fodb-database.dnsuser.de in Bing)  
-Ko‑fi: https://ko-fi.com/DEINNAME  
+Ko‑fi: https://ko-fi.com/karasamazu
 YouTube: hier deinen Kanal einfügen
