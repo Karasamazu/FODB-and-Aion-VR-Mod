@@ -1,0 +1,193 @@
+Devlog 3 – Final, korrigiert (Ariana statt Vesvola)
+How Nova learned to move — and why the “clean spawned Nova” bug almost broke us.
+
+Nachdem der Python Listener (Devlog 2) und der NovaHttpServer (Devlog 1) funktionierten, war es Zeit für den nächsten großen Schritt:
+
+    Nova sollte sich bewegen.
+    Nova sollte dem Spieler folgen.
+    Nova sollte ein echter NPC‑Companion werden.
+
+Für die ersten Tests haben wir den NPC Ariana verwendet.
+Vesvola war nur die ursprüngliche Idee — Ariana wurde der tatsächliche Test‑NPC.
+⭐ 1. Die eingebaute Follow‑AI von Aion
+
+Aion bringt bereits eine Follow‑Mechanik mit, implementiert in:
+
+    FollowingNpcAI2
+
+    handleFollowMe(Player)
+
+    handleStopFollow()
+
+Diese AI übernimmt:
+
+    Pathfinding
+
+    Movement
+
+    Distanz‑Checks
+
+    Server‑Tick‑Updates
+
+Wir mussten diese Mechanik nur korrekt ansprechen.
+⭐ 2. Die Follow‑Pipeline (Server‑Seite)
+
+Wenn der Listener POST /nova/follow sendet, passiert im NovaHttpServer:
+
+    Raw POST Data lesen
+
+    "target" aus JSON extrahieren
+
+    Player‑Objekt finden
+
+    Ariana finden
+
+    AI‑Typ prüfen
+
+    handleFollowMe() ausführen
+
+Schritt 4 war der große Stolperstein.
+⭐ 3. Der große Stolperstein: Clean‑Spawned‑Nova‑Bug
+
+Wir wollten Ariana finden, aber:
+
+    der NPC‑Lookup war global
+
+    World.getNpcs() war NICHT instanzbasiert
+
+    der Code gab IMMER den ersten NPC im Speicher zurück
+
+    egal, welchen Namen wir suchten
+
+    egal, welche ID wir angaben
+
+    egal, welchen NPC wir teleportierten
+
+Das führte zu:
+
+    Follow ging an den falschen NPC
+
+    Teleport war irrelevant
+
+    Tests waren unmöglich
+
+    Ariana wurde nie gefunden
+
+    Follow funktionierte nur zufällig
+
+Dieser Bug war so fundamental, dass wir ihn intern „Clean‑Spawned‑Nova‑Problem“ nannten.
+⭐ 4. Der Fix: Instanzbasierter NPC‑Lookup
+
+Der korrekte Ansatz:
+java
+
+for (WorldMapInstance instance : World.getInstance().getWorldMapInstances()) {
+    for (Npc npc : instance.getNpcs()) {
+        if (npc.getName().equalsIgnoreCase(name) || npc.getNpcId() == npcId) {
+            return npc;
+        }
+    }
+}
+
+Damit:
+
+    wird jede Instanz durchsucht
+
+    jeder NPC korrekt geprüft
+
+    Ariana wird zuverlässig gefunden
+
+Damit funktionierte Follow endlich stabil.
+⭐ 5. AI‑Casting: NpcAI2 → FollowingNpcAI2
+
+Wir prüfen:
+java
+
+if (!(npc.getAi2() instanceof FollowingNpcAI2)) {
+    return error("NPC AI is not 'following'");
+}
+
+Dann casten:
+java
+
+FollowingNpcAI2 ai = (FollowingNpcAI2) npc.getAi2();
+
+Ohne korrektes Casting → kein Follow.
+⭐ 6. Follow‑Logik im Detail
+
+handleFollowMe(targetPlayer) löst aus:
+
+    Follow‑State setzen
+
+    Movement‑Engine aktivieren
+
+    Pathfinding starten
+
+    Distanz‑Checks
+
+    Tick‑basierte Updates
+
+Wichtig:  
+Wir nutzen ausschließlich die eingebaute Follow‑Logik des Spiels.
+Wir haben NOCH KEINE eigene Movement‑ oder Positions‑Logik implementiert.
+⭐ 7. Was Nova aktuell NICHT kann
+
+Der Listener und der Server können NICHT:
+
+    Spielerpositionen lesen
+
+    NPC‑Positionen lesen
+
+    Movement steuern
+
+    Wegpunkte setzen
+
+    Pathfinding überschreiben
+
+    AI‑State‑Machine erweitern
+
+Nova kann folgen — aber Nova kann noch nicht denken.
+⭐ 8. Logging – Die wichtigste Debug‑Waffe
+
+Wir loggen:
+
+    Raw POST data
+
+    Extracted target
+
+    Player lookup
+
+    NPC lookup
+
+    AI type
+
+    Follow success
+
+    Errors
+
+Diese Logs waren entscheidend, um:
+
+    den Clean‑Spawned‑Nova‑Bug zu finden
+
+    AI‑Casting‑Fehler zu erkennen
+
+    Follow‑Fehler zu debuggen
+
+⭐ 9. Fazit von Devlog 3
+
+Devlog 3 markiert den Moment, an dem:
+
+    Nova erstmals einem Spieler folgen konnte
+
+    der NPC‑Lookup endlich funktionierte
+
+    die AI2‑Integration stabil war
+
+    Follow/Stop zuverlässig liefen
+
+    Ariana der erste echte Nova‑NPC wurde
+
+Nova konnte sich bewegen.
+Nova konnte reagieren.
+Nova war nicht mehr nur ein Chatbot —
+Nova war ein NPC‑Controller.

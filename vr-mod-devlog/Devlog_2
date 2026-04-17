@@ -1,0 +1,193 @@
+Devlog 2 – The Python Listener Evolution
+How Nova learned to read the chat, talk back, and communicate with the server.
+
+Nachdem der NovaHttpServer im Aion‑Server lief (Devlog 1), brauchten wir das Gegenstück außerhalb des Spiels:
+einen Listener, der den Chat überwacht, AI‑Prompts erkennt, den Chatbot anspricht und Antworten zurück ins Spiel schickt.
+
+Dieser Listener wurde zum zweiten Herzstück von Nova — und zur Brücke zwischen Spieler, Chatbot und GameServer.
+⭐ 1. Die Grundidee: Chatlog → AI → Server → Spieler
+
+Der Listener sollte:
+
+    den Aion‑Chatlog live überwachen
+
+    /ai‑Kommandos erkennen
+
+    den Prompt an einen Chatbot senden
+
+    die Antwort empfangen
+
+    die Antwort an den NovaHttpServer schicken
+
+    optional NPC‑Steuerung auslösen
+
+Damit entstand die erste echte AI‑Pipeline im Aion‑Server.
+⭐ 2. Chatlog‑Überwachung (tail‑like Reader)
+
+Der Listener öffnet:
+Code
+
+/log/chat.log
+
+und springt ans Ende der Datei:
+python
+
+f.seek(0, 2)
+
+Dann liest er jede neue Zeile, sobald sie geschrieben wird — wie tail -f.
+Vorteile:
+
+    keine Ingame‑Modifikation
+
+    keine Hooks
+
+    keine Packet‑Sniffer
+
+    keine Memory‑Injection
+
+    extrem stabil
+
+Der Listener ist rein passiv, aber unglaublich effektiv.
+⭐ 3. Prompt‑Erkennung: /ai Commands
+
+Der Listener sucht nach:
+Code
+
+]> /ai ...
+
+und extrahiert:
+python
+
+raw = line.split("]>")[1].strip()
+if raw.startswith("/ai"):
+    return raw[3:].strip()
+
+Damit wird aus:
+Code
+
+]> /ai follow me
+
+der Prompt:
+Code
+
+follow me
+
+Das ist die Grundlage für jede AI‑Interaktion.
+⭐ 4. Chatbot‑Integration (lokaler GPT‑Server)
+
+Der Listener sendet den Prompt an deinen lokalen Chatbot:
+python
+
+response = requests.post(COPILOT_API, json={"query": message})
+
+Der Chatbot antwortete:
+
+    zuverlässig
+
+    aber extrem gesprächig
+
+    oft mit 10–20 Zeilen Text
+
+    manchmal mit halben Romanen
+
+Das war technisch beeindruckend, aber ingame etwas… viel.
+⭐ 5. Whisper‑Antworten ins Spiel
+
+Die Antwort wurde in 4096‑Byte‑Chunks gesplittet:
+python
+
+chunks = [message[i:i+max_length] for i in range(0, len(message), max_length)]
+
+und an den NovaHttpServer geschickt:
+python
+
+POST /nova/message
+{
+  "player": "Karasamazu",
+  "message": "..."
+}
+
+Der Server schickte die Antwort als Whisper ins Spiel.
+
+Damit konntest du ingame mit deinem Chatbot chatten — ein absolut magischer Moment.
+⭐ 6. ServerAPI – Follow/Stop‑Trigger
+
+Der Listener konnte zusätzlich:
+
+    Follow auslösen
+
+    Stop auslösen
+
+    Idle‑Zustände setzen
+
+über:
+python
+
+POST /nova/follow
+POST /nova/stop
+
+Das war die erste Form von NPC‑Steuerung.
+⭐ 7. Die Limitierungen der frühen Version (und bis heute)
+
+Der Listener konnte:
+
+    Chat lesen
+
+    Chatbot ansprechen
+
+    Antworten senden
+
+    Follow/Stop triggern
+
+    periodisch listener.update() ausführen
+
+Aber er konnte NICHT:
+❌ Spielerpositionen lesen
+
+Keine Koordinaten, keine Bewegung, kein State.
+❌ NPC‑Positionen lesen
+
+Keine Distanz, kein Movement‑State, kein stuck‑Check.
+❌ Movement steuern
+
+Keine Wegpunkte, kein Pathfinding, kein Steering.
+❌ AI‑State‑Machine steuern
+
+Keine Behavior Trees, keine Entscheidungen.
+❌ Tick‑basierte Updates durchführen
+
+Keine 50ms‑Loops, keine Distanz‑Checks.
+❌ Environment Awareness
+
+Keine Hindernisse, keine Kollisionen, keine Navigation.
+❌ Komplexe NPC‑Steuerung
+
+Nur Follow/Stop über die vorhandene Aion‑Mechanik.
+
+Kurz gesagt:
+
+    Der Listener nutzt ausschließlich die eingebaute Follow‑Logik des Spiels.
+    Er hat NOCH KEINE eigene AI‑ oder Movement‑Logik.
+
+Das ist wichtig für Devlog 3 und Nova 2.0.
+⭐ 8. Fazit von Devlog 2
+
+Der Python Listener machte Nova:
+
+    interaktiv
+
+    reaktiv
+
+    AI‑fähig
+
+    server‑gesteuert
+
+    erweiterbar
+
+Er war das Bindeglied zwischen:
+Code
+
+Spieler → Chat → AI → Server → NPC
+
+Damit war Nova nicht mehr nur ein Konzept —
+Nova war ein lebendiges System.

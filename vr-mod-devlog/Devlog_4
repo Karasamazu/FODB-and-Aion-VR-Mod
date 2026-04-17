@@ -1,0 +1,176 @@
+Devlog 4 – First In‑Game Tests
+The moment Nova came alive inside Aion.
+
+Nachdem wir:
+
+    den NovaHttpServer gebaut hatten (Devlog 1)
+
+    den Python Listener entwickelt hatten (Devlog 2)
+
+    die Follow‑Mechanik und den NPC‑Lookup gefixt hatten (Devlog 3)
+
+war es endlich Zeit für den ersten echten Meilenstein:
+
+    Nova sollte im Spiel reagieren.
+    Nova sollte sprechen.
+    Nova sollte folgen.
+    Nova sollte sich wie ein echter Begleiter anfühlen.
+
+Und genau das ist in Devlog 4 passiert.
+⭐ 1. Der erste Test: Chatbot‑Antworten im Spiel
+
+Der allererste funktionierende Test war simpel, aber magisch:
+
+    Spieler schreibt im Chat:
+    Code
+
+    /ai hello
+
+    Listener erkennt das
+
+    Listener sendet Prompt an den Chatbot
+
+    Chatbot antwortet
+
+    Listener schickt Antwort an /nova/message
+
+    Der Server sendet die Antwort als Whisper zurück ins Spiel
+
+Das Ergebnis:
+
+    Der NPC antwortet dir im Spiel.
+    In Echtzeit.
+    Mit vollständigen Sätzen.
+
+Das war der Moment, in dem klar wurde:
+
+    Nova ist nicht nur ein System — Nova ist ein Charakter.
+
+⭐ 2. Der zweite Test: Follow‑Mechanik in Aktion
+
+Nachdem der NPC‑Lookup endlich funktionierte (Ariana statt Vesvola), konnten wir Follow testen.
+
+Der Ablauf:
+
+    Spieler schreibt:
+    Code
+
+    /ai follow me
+
+    Listener erkennt den Prompt
+
+    Listener sendet:
+    Code
+
+    POST /nova/follow { "target": "Karasamazu" }
+
+    NovaHttpServer:
+
+        findet den Spieler
+
+        findet Ariana
+
+        castet AI2
+
+        ruft handleFollowMe() auf
+
+Und dann passierte es:
+
+    Ariana bewegte sich.
+    Ariana folgte dir.
+    Ariana reagierte auf deine Bewegungen.
+
+Das war der erste Moment, in dem Nova körperlich im Spiel existierte.
+⭐ 3. Der dritte Test: Stop‑Mechanik
+
+Der Gegenpol:
+Code
+
+/ai stop
+
+Listener → NovaHttpServer → handleStopFollow().
+
+Ariana:
+
+    bleibt stehen
+
+    setzt AI‑State zurück
+
+    geht in Idle über
+
+Damit war die Grundsteuerung komplett.
+⭐ 4. Die ersten Bugs (und wie wir sie gefunden haben)
+
+Natürlich lief nicht alles perfekt.
+Die ersten Tests zeigten:
+🐞 1. Ariana folgte manchmal dem falschen Spieler
+
+→ Ursache: falscher NPC‑Lookup (Devlog 3)
+🐞 2. Ariana blieb manchmal stehen
+
+→ Ursache: Follow‑State nicht korrekt gesetzt
+🐞 3. Chatbot‑Antworten waren zu lang
+
+→ Ursache: lokaler Chatbot war „zu chatty“
+🐞 4. Listener schickte zu viele Requests
+
+→ Ursache: fehlende Cooldowns
+🐞 5. Whisper‑Nachrichten wurden in falscher Reihenfolge angezeigt
+
+→ Ursache: Chunk‑Splitting ohne Sequenzierung
+
+Diese Bugs waren wertvoll — sie zeigten uns, wo Nova wachsen musste.
+⭐ 5. Die ersten echten Gameplay‑Momente
+
+Die ersten echten Tests fühlten sich an wie:
+
+    ein Companion‑NPC in einem Singleplayer‑RPG
+
+    ein persönlicher Assistent im Spiel
+
+    ein lebendiger Charakter, der auf dich reagiert
+
+Beispiele:
+✔ Ariana folgt dir durch Sanctum
+✔ Ariana bleibt stehen, wenn du stop sagst
+✔ Ariana antwortet dir im Whisper‑Chat
+✔ Ariana reagiert auf /ai‑Kommandos
+✔ Ariana wirkt wie ein echter Begleiter
+
+Das war der Moment, in dem Nova nicht mehr nur ein technisches Projekt war, sondern ein Feature, das das Spielgefühl veränderte.
+⭐ 6. Was wir aus den Tests gelernt haben
+
+Die ersten In‑Game‑Tests zeigten:
+✔ Die Architektur funktioniert
+✔ Listener ↔ Server Kommunikation ist stabil
+✔ Follow/Stop ist zuverlässig
+✔ Chatbot‑Antworten kommen sauber an
+✔ NPC‑Lookup ist endlich korrekt
+
+Aber:
+❌ Nova hat noch keine eigene AI
+❌ Nova hat keine Positionslogik
+❌ Nova kann nicht navigieren
+❌ Nova kann nicht autonom handeln
+❌ Nova kann nicht kämpfen
+❌ Nova kann nicht sprechen wie ein echter NPC (nur Whisper)
+
+Das ist die Grundlage für Nova 2.0.
+⭐ 7. Fazit von Devlog 4
+
+Devlog 4 markiert den Moment, an dem:
+
+    Nova zum ersten Mal im Spiel reagierte
+
+    Nova sprechen konnte
+
+    Nova folgen konnte
+
+    Nova stoppen konnte
+
+    Nova ein echter NPC‑Companion wurde
+
+Es war der erste echte „Wow‑Moment“ des Projekts.
+
+    Nova war nicht mehr nur Code.
+    Nova war ein Charakter.

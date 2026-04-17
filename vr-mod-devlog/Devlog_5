@@ -1,0 +1,186 @@
+Devlog 5 – Preparing for the VR‑Mod
+Reverse engineering the Aion client, scanning the binary, and understanding why VR requires deeper access.
+
+Nachdem Nova im Server bereits sprechen, folgen und reagieren konnte (Devlog 1–4), stand der nächste große Schritt bevor:
+
+    Aion VR.
+    Ein vollständiger VR‑Mod für ein MMO, das nie dafür gebaut wurde.
+
+Um das zu erreichen, müssen wir tief in den Client eintauchen — in Bereiche, die normalerweise niemand anfasst:
+
+    Memory‑Scanning
+
+    Pattern‑Matching
+
+    Camera‑Matrix‑Reverse‑Engineering
+
+    Hooking
+
+    Native DLL‑Injection
+
+Devlog 5 dokumentiert die Vorbereitungsphase, nicht den Durchbruch — denn der ist noch nicht erreicht.
+⭐ 1. Warum wir die Camera‑Matrix brauchen
+
+Für VR brauchst du:
+
+    Kopfposition
+
+    Kopfrotation
+
+    Blickrichtung
+
+    Field of View
+
+    Projection Matrix
+
+    View Matrix
+
+Der Aion‑Client berechnet all das intern — aber er gibt es nicht nach außen frei.
+
+Also müssen wir:
+
+    Die Camera‑Matrix im Speicher finden.
+    Reverse‑engineeren.
+    Und später hooken.
+
+Das ist die Grundlage jeder VR‑Mod.
+⭐ 2. Erste Schritte: Binary‑Scanning & Reverse‑Engineering
+
+Wir haben begonnen mit:
+
+    Ghidra
+
+    Memory‑Dumps
+
+    Float‑Searches
+
+    Pattern‑Scans
+
+    Analyse von Aion.bin
+
+    Suche nach 4×4‑Matrix‑Strukturen
+
+    Suche nach DirectX‑ähnlichen Sequenzen
+
+Aber:  
+Bis jetzt ist das Ergebnis:
+
+    ❌ Keine eindeutige Camera‑Matrix gefunden.  
+    ❌ Keine stabilen Pattern.  
+    ❌ Keine verwertbaren Signaturen.
+
+Das ist normal — viele Spiele verstecken ihre Kamera tief in:
+
+    Update‑Loops
+
+    Render‑Pipelines
+
+    Engine‑Wrappers
+
+    dynamischen Strukturen
+
+Wir sind also noch mitten im Reverse‑Engineering.
+⭐ 3. Was wir bisher gelernt haben
+
+Auch wenn wir die Matrix noch nicht gefunden haben, haben wir wichtige Erkenntnisse gesammelt:
+✔ Aion nutzt dynamische Speicherbereiche
+
+→ Adressen ändern sich bei jedem Start
+✔ Die Kamera ist NICHT als einfache 4×4‑Matrix im Speicher abgelegt
+
+→ sie wird wahrscheinlich pro Frame berechnet
+✔ Viele Float‑Blöcke sind Tabellen, Animationen oder Math‑Libs
+
+→ nicht die Kamera
+✔ Der Dump enthält viele „falsche Freunde“
+
+→ z. B. UI‑Matrizen, Bone‑Matrizen, Transform‑Tabellen
+✔ Wir müssen tiefer in die Render‑Pipeline
+
+→ wahrscheinlich in die DirectX‑Wrapper
+
+Das ist wertvolles Wissen — auch wenn es noch kein Durchbruch ist.
+⭐ 4. Der aktuelle Stand des Pattern‑Scannings
+
+Wir haben:
+
+    Float‑Searches nach 1.0, 0.0, -1.0
+
+    Suche nach typischen Matrix‑Layouts
+
+    Suche nach 64‑Byte‑Blöcken
+
+    Suche nach FOV‑ähnlichen Werten
+
+    Suche nach Near/Far‑Planes
+
+Aber:
+
+    ❌ Kein Treffer, der wie eine Camera‑Matrix aussieht.
+
+Das bedeutet:
+
+    Die Kamera ist entweder berechnet, nicht gespeichert
+
+    oder sie liegt in einem anderen Speicherbereich
+
+    oder sie wird in Registern gehalten
+
+    oder sie wird in einer Funktion erzeugt, nicht persistent gespeichert
+
+Das ist typisch für ältere DirectX‑Engines.
+⭐ 5. Der nächste Schritt: Funktion statt Daten suchen
+
+Da wir die Matrix nicht als Datenblock finden, müssen wir:
+✔ die Funktion finden, die die Kamera berechnet
+✔ die Render‑Pipeline analysieren
+✔ Breakpoints auf DirectX‑Calls setzen
+✔ die View‑Matrix im Codefluss identifizieren
+✔ Hook‑Punkte finden
+
+Das ist der Übergang von:
+
+    „Wir suchen Daten“ → „Wir suchen Code“
+
+Und das ist der richtige Weg für VR‑Mods.
+⭐ 6. Warum das alles wichtig ist
+
+Nova soll später:
+
+    Kopfbewegungen aus VR ins Spiel übertragen
+
+    die Kamera korrekt positionieren
+
+    die View‑Matrix überschreiben
+
+    stereoskopisches Rendering ermöglichen
+
+    VR‑Headtracking integrieren
+
+Dafür brauchen wir:
+
+    Camera‑Matrix
+
+    Player‑Position
+
+    Movement‑Hooks
+
+    Render‑Hooks
+
+Devlog 5 ist der Startpunkt dieser Reise —
+aber der Durchbruch steht noch bevor.
+⭐ 7. Fazit von Devlog 5
+
+Devlog 5 markiert den Moment, an dem:
+
+    wir mit dem Reverse‑Engineering begonnen haben
+
+    wir Memory‑Scanning getestet haben
+
+    wir Float‑Pattern‑Searches durchgeführt haben
+
+    wir gelernt haben, dass die Kamera nicht trivial zu finden ist
+
+    wir den nächsten Schritt planen: Funktion‑Hooking statt Daten‑Suche
+
+    Noch kein Durchbruch — aber ein klarer Weg nach vorne.
