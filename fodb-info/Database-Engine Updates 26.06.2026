@@ -1,0 +1,4 @@
+My very new UI is out now and the database is not limited to 20 tables anymore :) . 
+Create and select as much tables as you want! + 
+BULK INSERT can be executed with FORCE option now to bypass beforehand created ForeignKeys + 
+Dynamic column width in the result window depending on the column content
