@@ -18,7 +18,7 @@ A high‑performance, file‑based database engine with:
     designed for massive text‑based datasets
 
 👉 Full documentation, downloads & benchmarks:
-https://fodb-database.dnsuser.de/ (fodb-database.dnsuser.de in Bing)
+https://fodb-database.dnsuser.de/ (fodb-database.com in Bing)
 
 👉 Support the project (helps me continue development):
 https://ko-fi.com/DEINNAME
