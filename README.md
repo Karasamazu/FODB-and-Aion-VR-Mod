@@ -79,6 +79,6 @@ If you want to support development, you can:
 Every bit of support helps — I currently work part‑time and build these projects in my limited free time.
 🔗 Links
 
-Website: https://fodb-database.dnsuser.de/ (fodb-database.dnsuser.de in Bing)  
+Website: https://fodb-database.com/ (fodb-database.com in Bing)  
 Ko‑fi: https://ko-fi.com/karasamazu
 YouTube: hier deinen Kanal einfügen
