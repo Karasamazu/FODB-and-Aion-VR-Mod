@@ -1,0 +1,1 @@
+/usr/bin/c++ -fPIC -m32 -shared -Wl,-soname,aion_vr_layer.so -o aion_vr_layer.so CMakeFiles/aion_vr_layer.dir/layer.cpp.o  /usr/lib/i386-linux-gnu/libvulkan.so 
