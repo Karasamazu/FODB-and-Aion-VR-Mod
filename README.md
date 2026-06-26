@@ -3,7 +3,7 @@
 Welcome to the central hub for my two main technical projects:
 🔹 FODB – Fast Object Database Engine
 
-A high‑performance, file‑based database engine with:
+A high‑performance, file‑based relational database engine with:
 
     up to 65k column length
 
@@ -17,7 +17,7 @@ A high‑performance, file‑based database engine with:
 
     designed for massive text‑based datasets
 
-👉 Full documentation, downloads & benchmarks:
+👉 Full documentation, downloads & perfomance demos:
 https://fodb-database.com/ (fodb-database.com in Bing)
 
 👉 Support the project (helps me continue development):
