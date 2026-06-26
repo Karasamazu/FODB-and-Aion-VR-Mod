@@ -21,7 +21,7 @@ A high‑performance, file‑based database engine with:
 https://fodb-database.com/ (fodb-database.com in Bing)
 
 👉 Support the project (helps me continue development):
-https://ko-fi.com/DEINNAME
+https://ko-fi.com/karasamazu
 🔹 Aion VR‑Mod – Reverse‑Engineering Devlog
 
 A technical deep‑dive into building a VR‑mod for Aion 5.8 under Linux/Wine.
